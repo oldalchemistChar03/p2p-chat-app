@@ -10,9 +10,6 @@ export default function LoginScreen({ navigation }) {
   const [password, setPassword] = useState('');
 
   const handleLogin = async () => {
-    console.log('Email:', email);
-    console.log('Password:', password);
-
     if (!email.includes('@') || !email.includes('.')) {
       Alert.alert('Invalid Email', 'Please enter a valid email address.');
       return;
@@ -37,13 +34,10 @@ export default function LoginScreen({ navigation }) {
       const user = userCredential.user;
 
       await updateDoc(doc(db, 'users', user.uid), {
-        location: {
-          latitude,
-          longitude,
-        },
+        location: { latitude, longitude },
+        isOnline: true, // ✅ Online status
       });
 
-      console.log('Logged in and location updated!');
       navigation.navigate('Home');
     } catch (error) {
       console.error(error);
@@ -55,22 +49,8 @@ export default function LoginScreen({ navigation }) {
     <View style={styles.container}>
       <Text style={styles.title}>Welcome Back</Text>
 
-      <TextInput
-        style={styles.input}
-        value={email}
-        onChangeText={setEmail}
-        placeholder="Email Address"
-        autoCapitalize="none"
-        keyboardType="email-address"
-      />
-
-      <TextInput
-        style={styles.input}
-        value={password}
-        onChangeText={setPassword}
-        placeholder="Password"
-        secureTextEntry
-      />
+      <TextInput style={styles.input} value={email} onChangeText={setEmail} placeholder="Email Address" autoCapitalize="none" keyboardType="email-address" />
+      <TextInput style={styles.input} value={password} onChangeText={setPassword} placeholder="Password" secureTextEntry />
 
       <TouchableOpacity style={styles.button} onPress={handleLogin}>
         <Text style={styles.buttonText}>Log In</Text>
@@ -90,26 +70,8 @@ export default function LoginScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: { flex: 1, justifyContent: 'center', padding: 20, backgroundColor: '#fff' },
   title: { fontSize: 28, fontWeight: 'bold', marginBottom: 20, textAlign: 'center', color: '#333' },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 10,
-    padding: 12,
-    marginBottom: 15,
-    backgroundColor: '#f9f9f9',
-  },
-  button: {
-    backgroundColor: '#007AFF',
-    padding: 15,
-    borderRadius: 10,
-    marginTop: 10,
-    alignItems: 'center',
-  },
+  input: { borderWidth: 1, borderColor: '#ddd', borderRadius: 10, padding: 12, marginBottom: 15, backgroundColor: '#f9f9f9' },
+  button: { backgroundColor: '#007AFF', padding: 15, borderRadius: 10, alignItems: 'center' },
   buttonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
-  linkText: {
-    color: '#007AFF',
-    textAlign: 'center',
-    marginTop: 15,
-    fontSize: 14,
-  },
+  linkText: { color: '#007AFF', textAlign: 'center', marginTop: 15, fontSize: 14 },
 });

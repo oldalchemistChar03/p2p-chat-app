@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
-import { collection, addDoc, query, where, orderBy, onSnapshot, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, getDoc } from 'firebase/firestore';
 import { db, auth } from '../firebaseConfig';
+import moment from 'moment';
 
 export default function ChatScreen({ route }) {
   const { selectedUser } = route.params;
@@ -9,10 +10,22 @@ export default function ChatScreen({ route }) {
 
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
+  const [currentUserData, setCurrentUserData] = useState(null);
 
   const chatId = [currentUser.uid, selectedUser.uid].sort().join('_');
 
   useEffect(() => {
+    // Fetch current user data (for name)
+    const fetchCurrentUserData = async () => {
+      const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+      if (userDoc.exists()) {
+        setCurrentUserData(userDoc.data());
+      }
+    };
+
+    fetchCurrentUserData();
+
+    // Listen to messages
     const messagesRef = collection(db, 'chats', chatId, 'messages');
     const q = query(messagesRef, orderBy('createdAt', 'asc'));
 
@@ -34,6 +47,7 @@ export default function ChatScreen({ route }) {
       await addDoc(collection(db, 'chats', chatId, 'messages'), {
         text: input,
         senderId: currentUser.uid,
+        senderName: currentUserData?.fullName || 'You',
         receiverId: selectedUser.uid,
         createdAt: serverTimestamp(),
       });
@@ -43,14 +57,23 @@ export default function ChatScreen({ route }) {
     }
   };
 
-  const renderMessage = ({ item }) => (
-    <View style={[
-      styles.messageContainer,
-      item.senderId === currentUser.uid ? styles.myMessage : styles.theirMessage
-    ]}>
-      <Text style={styles.messageText}>{item.text}</Text>
-    </View>
-  );
+  const renderMessage = ({ item }) => {
+    const isMyMessage = item.senderId === currentUser.uid;
+    const time = item.createdAt?.seconds
+      ? moment(item.createdAt.seconds * 1000).format('h:mm A')
+      : '';
+
+    return (
+      <View style={[
+        styles.messageContainer,
+        isMyMessage ? styles.myMessage : styles.theirMessage
+      ]}>
+        {!isMyMessage && <Text style={styles.senderName}>{item.senderName}</Text>}
+        <Text style={styles.messageText}>{item.text}</Text>
+        <Text style={styles.timeText}>{time}</Text>
+      </View>
+    );
+  };
 
   return (
     <KeyboardAvoidingView
@@ -97,7 +120,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#e5e5ea',
     alignSelf: 'flex-start',
   },
-  messageText: { color: '#fff' },
+  messageText: { color: '#fff', marginBottom: 5 },
+  senderName: { fontSize: 12, color: '#333', marginBottom: 3 },
+  timeText: { fontSize: 10, color: '#ddd', alignSelf: 'flex-end' },
   inputContainer: {
     flexDirection: 'row',
     padding: 10,

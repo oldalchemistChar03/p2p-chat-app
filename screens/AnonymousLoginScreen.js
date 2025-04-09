@@ -24,13 +24,13 @@ export default function AnonymousLoginScreen({ navigation }) {
         uid: user.uid,
         fullName: 'Anonymous',
         isAnonymous: true,
+        isOnline: true, // ✅ Online status
         location: {
           latitude,
           longitude,
         },
       });
 
-      console.log('Signed in anonymously and saved location!');
       navigation.navigate('Home');
     } catch (error) {
       console.error(error);
@@ -58,18 +58,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, justifyContent: 'center', padding: 20, backgroundColor: '#fff' },
   title: { fontSize: 28, fontWeight: 'bold', marginBottom: 10, textAlign: 'center', color: '#333' },
   subtitle: { fontSize: 16, marginBottom: 20, textAlign: 'center', color: '#555' },
-  button: {
-    backgroundColor: '#007AFF',
-    padding: 15,
-    borderRadius: 10,
-    marginTop: 10,
-    alignItems: 'center',
-  },
+  button: { backgroundColor: '#007AFF', padding: 15, borderRadius: 10, alignItems: 'center' },
   buttonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
-  linkText: {
-    color: '#007AFF',
-    textAlign: 'center',
-    marginTop: 15,
-    fontSize: 14,
-  },
+  linkText: { color: '#007AFF', textAlign: 'center', marginTop: 15, fontSize: 14 },
 });

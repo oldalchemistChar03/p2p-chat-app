@@ -1,29 +1,101 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, Alert, AppState } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, onSnapshot, doc, updateDoc } from 'firebase/firestore';
 import { db, auth } from '../firebaseConfig';
+import * as Location from 'expo-location';
 
 export default function MapScreen({ navigation }) {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const currentUser = auth.currentUser;
 
+  // ✅ Fetch users in real-time
   useEffect(() => {
-    (async () => {
-      try {
-        // Fetch all users from Firestore
-        const usersCollection = await getDocs(collection(db, 'users'));
-        const usersList = usersCollection.docs.map(doc => doc.data());
-        setUsers(usersList);
-        setLoading(false);
-      } catch (error) {
-        console.error(error);
-        Alert.alert('Error', 'Failed to load map data.');
-        setLoading(false);
-      }
-    })();
+    const unsubscribe = onSnapshot(collection(db, 'users'), snapshot => {
+      const usersList = snapshot.docs.map(doc => doc.data());
+      setUsers(usersList);
+      setLoading(false);
+    });
+
+    return () => {
+      unsubscribe();
+    };
   }, []);
+
+  // ✅ Track app state for online/offline status
+  useEffect(() => {
+    const handleAppStateChange = async (nextAppState) => {
+      if (!currentUser) return;
+
+      const userRef = doc(db, 'users', currentUser.uid);
+
+      try {
+        if (nextAppState === 'active') {
+          await updateDoc(userRef, { isOnline: true });
+        } else {
+          await updateDoc(userRef, { isOnline: false });
+        }
+      } catch (error) {
+        console.error('Error updating online status:', error);
+      }
+    };
+
+    const subscription = AppState.addEventListener('change', handleAppStateChange);
+
+    return () => {
+      subscription.remove();
+    };
+  }, [currentUser]);
+
+  // ✅ Haversine formula for distance calculation
+  const getDistance = (lat1, lon1, lat2, lon2) => {
+    const toRad = (value) => (value * Math.PI) / 180;
+
+    const R = 6371; // Radius of Earth in km
+    const dLat = toRad(lat2 - lat1);
+    const dLon = toRad(lon2 - lon1);
+
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    return R * c; // Distance in km
+  };
+
+  // ✅ Find nearest user
+  const findNearestUser = () => {
+    if (!currentUser || users.length === 0) return null;
+
+    const currentUserData = users.find(user => user.uid === currentUser.uid);
+    if (!currentUserData || !currentUserData.location) return null;
+
+    let nearestUser = null;
+    let shortestDistance = Infinity;
+
+    users.forEach(user => {
+      if (!user.location || user.uid === currentUser.uid) return;
+
+      const distance = getDistance(
+        currentUserData.location.latitude,
+        currentUserData.location.longitude,
+        user.location.latitude,
+        user.location.longitude
+      );
+
+      if (distance < shortestDistance) {
+        shortestDistance = distance;
+        nearestUser = { ...user, distance };
+      }
+    });
+
+    return nearestUser;
+  };
+
+  const nearestUser = findNearestUser();
 
   if (loading) {
     return (
@@ -34,7 +106,6 @@ export default function MapScreen({ navigation }) {
     );
   }
 
-  // Get current user's Firestore location
   const currentUserData = users.find(user => user.uid === currentUser.uid);
 
   if (!currentUserData || !currentUserData.location) {
@@ -46,39 +117,53 @@ export default function MapScreen({ navigation }) {
   }
 
   return (
-    <MapView
-      style={styles.map}
-      initialRegion={{
-        latitude: currentUserData.location.latitude,
-        longitude: currentUserData.location.longitude,
-        latitudeDelta: 0.05,
-        longitudeDelta: 0.05,
-      }}
-    >
-      {users.map(user => {
-        if (!user.location) return null;
+    <View style={{ flex: 1 }}>
+      {/* ✅ Nearest user info */}
+      {nearestUser && (
+        <View style={styles.nearestUserContainer}>
+          <Text style={styles.nearestUserText}>
+            Nearest user: {nearestUser.email} ({nearestUser.distance.toFixed(2)} km away)
+          </Text>
+        </View>
+      )}
 
-        const isCurrentUser = user.uid === currentUser.uid;
+      {/* ✅ Map */}
+      <MapView
+        style={styles.map}
+        initialRegion={{
+          latitude: currentUserData.location.latitude,
+          longitude: currentUserData.location.longitude,
+          latitudeDelta: 0.05,
+          longitudeDelta: 0.05,
+        }}
+      >
+        {users.map(user => {
+          if (!user.location) return null;
 
-        return (
-          <Marker
-            key={user.uid}
-            coordinate={{
-              latitude: user.location.latitude,
-              longitude: user.location.longitude,
-            }}
-            title={isCurrentUser ? 'You' : user.isAnonymous ? 'Anonymous' : user.fullName}
-            description={isCurrentUser ? 'This is your location' : user.email}
-            pinColor={isCurrentUser ? 'blue' : 'red'}
-            onPress={() => {
-              if (!isCurrentUser) {
-                navigation.navigate('Chat', { selectedUser: user });
+          const isCurrentUser = user.uid === currentUser.uid;
+
+          return (
+            <Marker
+              key={user.uid}
+              coordinate={{
+                latitude: user.location.latitude,
+                longitude: user.location.longitude,
+              }}
+              title={isCurrentUser ? 'You' : user.isAnonymous ? 'Anonymous' : user.fullName}
+              description={isCurrentUser ? 'This is your location' : user.email}
+              pinColor={
+                isCurrentUser ? 'blue' : user.isOnline ? 'green' : 'red'
               }
-            }}
-          />
-        );
-      })}
-    </MapView>
+              onPress={() => {
+                if (!isCurrentUser) {
+                  navigation.navigate('Chat', { selectedUser: user });
+                }
+              }}
+            />
+          );
+        })}
+      </MapView>
+    </View>
   );
 }
 
@@ -96,5 +181,25 @@ const styles = StyleSheet.create({
     marginTop: 10,
     fontSize: 16,
     color: '#555',
+  },
+  nearestUserContainer: {
+    position: 'absolute',
+    top: 40,
+    left: 20,
+    right: 20,
+    padding: 10,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 5,
+    elevation: 3,
+    zIndex: 999,
+  },
+  nearestUserText: {
+    textAlign: 'center',
+    color: '#333',
+    fontWeight: 'bold',
   },
 });
