@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator, Alert, AppState } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { collection, onSnapshot, doc, updateDoc } from 'firebase/firestore';
-import { db, auth } from '../firebaseConfig';
+import { db, auth } from '../firebaseConfig';  
 import * as Location from 'expo-location';
 
 export default function MapScreen({ navigation }) {
@@ -10,7 +10,7 @@ export default function MapScreen({ navigation }) {
   const [loading, setLoading] = useState(true);
   const currentUser = auth.currentUser;
 
-  // ✅ Fetch users in real-time
+  
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, 'users'), snapshot => {
       const usersList = snapshot.docs.map(doc => doc.data());
@@ -23,7 +23,7 @@ export default function MapScreen({ navigation }) {
     };
   }, []);
 
-  // ✅ Track app state for online/offline status
+
   useEffect(() => {
     const handleAppStateChange = async (nextAppState) => {
       if (!currentUser) return;
@@ -48,11 +48,11 @@ export default function MapScreen({ navigation }) {
     };
   }, [currentUser]);
 
-  // ✅ Haversine formula for distance calculation
+
   const getDistance = (lat1, lon1, lat2, lon2) => {
     const toRad = (value) => (value * Math.PI) / 180;
 
-    const R = 6371; // Radius of Earth in km
+    const R = 6371;
     const dLat = toRad(lat2 - lat1);
     const dLon = toRad(lon2 - lon1);
 
@@ -63,10 +63,9 @@ export default function MapScreen({ navigation }) {
 
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
-    return R * c; // Distance in km
+    return R * c;
   };
 
-  // ✅ Find nearest user
   const findNearestUser = () => {
     if (!currentUser || users.length === 0) return null;
 
@@ -118,7 +117,7 @@ export default function MapScreen({ navigation }) {
 
   return (
     <View style={{ flex: 1 }}>
-      {/* ✅ Nearest user info */}
+   
       {nearestUser && (
         <View style={styles.nearestUserContainer}>
           <Text style={styles.nearestUserText}>
@@ -127,7 +126,7 @@ export default function MapScreen({ navigation }) {
         </View>
       )}
 
-      {/* ✅ Map */}
+      
       <MapView
         style={styles.map}
         initialRegion={{

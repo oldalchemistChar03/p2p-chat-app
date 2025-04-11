@@ -24,7 +24,7 @@ export default function AnonymousLoginScreen({ navigation }) {
         uid: user.uid,
         fullName: 'Anonymous',
         isAnonymous: true,
-        isOnline: true, // ✅ Online status
+        isOnline: true, 
         location: {
           latitude,
           longitude,

@@ -4,8 +4,8 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 export default function HomeScreen({ navigation }) {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>🎉 You are logged in!</Text>
-      <Text style={styles.subtitle}>Next: see nearby users on the map 🌍</Text>
+      <Text style={styles.title}> You are logged in!</Text>
+      <Text style={styles.subtitle}>Next: see nearby users on the map </Text>
 
       <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Map')}>
         <Text style={styles.buttonText}>Open Map</Text>

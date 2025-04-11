@@ -35,7 +35,7 @@ export default function LoginScreen({ navigation }) {
 
       await updateDoc(doc(db, 'users', user.uid), {
         location: { latitude, longitude },
-        isOnline: true, // ✅ Online status
+        isOnline: true, 
       });
 
       navigation.navigate('Home');
@@ -48,7 +48,6 @@ export default function LoginScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Welcome Back</Text>
-
       <TextInput style={styles.input} value={email} onChangeText={setEmail} placeholder="Email Address" autoCapitalize="none" keyboardType="email-address" />
       <TextInput style={styles.input} value={password} onChangeText={setPassword} placeholder="Password" secureTextEntry />
 
@@ -68,7 +67,7 @@ export default function LoginScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', padding: 20, backgroundColor: '#fff' },
+  container: { flex: 1, justifyContent: 'center', padding: 20, backgroundColor: '#fff' }, 
   title: { fontSize: 28, fontWeight: 'bold', marginBottom: 20, textAlign: 'center', color: '#333' },
   input: { borderWidth: 1, borderColor: '#ddd', borderRadius: 10, padding: 12, marginBottom: 15, backgroundColor: '#f9f9f9' },
   button: { backgroundColor: '#007AFF', padding: 15, borderRadius: 10, alignItems: 'center' },

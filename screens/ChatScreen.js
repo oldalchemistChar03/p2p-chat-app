@@ -25,7 +25,6 @@ export default function ChatScreen({ route }) {
 
     fetchCurrentUserData();
 
-    // Listen to messages
     const messagesRef = collection(db, 'chats', chatId, 'messages');
     const q = query(messagesRef, orderBy('createdAt', 'asc'));
 
@@ -104,47 +103,67 @@ export default function ChatScreen({ route }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
-  messagesList: { padding: 10 },
-  messageContainer: {
-    padding: 10,
-    borderRadius: 10,
-    marginVertical: 5,
-    maxWidth: '70%',
-  },
-  myMessage: {
-    backgroundColor: '#007AFF',
-    alignSelf: 'flex-end',
-  },
-  theirMessage: {
-    backgroundColor: '#e5e5ea',
-    alignSelf: 'flex-start',
-  },
-  messageText: { color: '#fff', marginBottom: 5 },
-  senderName: { fontSize: 12, color: '#333', marginBottom: 3 },
-  timeText: { fontSize: 10, color: '#ddd', alignSelf: 'flex-end' },
-  inputContainer: {
-    flexDirection: 'row',
-    padding: 10,
-    borderTopWidth: 1,
-    borderColor: '#ddd',
-    alignItems: 'center',
-  },
-  input: {
-    flex: 1,
-    backgroundColor: '#f2f2f2',
-    padding: 10,
-    borderRadius: 20,
-    marginRight: 10,
-  },
-  sendButton: {
-    backgroundColor: '#007AFF',
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    borderRadius: 20,
-  },
-  sendButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-  },
-});
+    container: {
+      flex: 1,
+      backgroundColor: '#ece5dd',
+    },
+    messagesList: {
+      padding: 10,
+    },
+    messageContainer: {
+      padding: 10,
+      borderRadius: 10,
+      marginVertical: 5,
+      maxWidth: '75%',
+    },
+    myMessage: {
+      backgroundColor: '#dcf8c6', 
+      alignSelf: 'flex-end',
+    },
+    theirMessage: {
+      backgroundColor: '#fff', 
+      alignSelf: 'flex-start',
+    },
+    messageText: {
+      color: '#000', 
+      marginBottom: 5,
+    },
+    senderName: {
+      fontSize: 12,
+      color: '#075e54', 
+      marginBottom: 3,
+    },
+    timeText: {
+      fontSize: 10,
+      color: '#999', 
+      alignSelf: 'flex-end',
+    },
+    inputContainer: {
+      flexDirection: 'row',
+      padding: 10,
+      borderTopWidth: 1,
+      borderColor: '#ddd',
+      alignItems: 'center',
+      backgroundColor: '#f7f7f7', 
+    },
+    input: {
+      flex: 1,
+      backgroundColor: '#fff', 
+      padding: 10,
+      borderRadius: 20,
+      marginRight: 10,
+      borderWidth: 1,
+      borderColor: '#ddd',
+    },
+    sendButton: {
+      backgroundColor: '#25D366', 
+      paddingVertical: 10,
+      paddingHorizontal: 15,
+      borderRadius: 20,
+    },
+    sendButtonText: {
+      color: '#fff',
+      fontWeight: 'bold',
+    },
+  });
+  

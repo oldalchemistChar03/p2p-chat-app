@@ -50,7 +50,7 @@ export default function SignupScreen({ navigation }) {
         email: user.email,
         fullName,
         isAnonymous: false,
-        isOnline: true, // ✅ Online status
+        isOnline: true,
         location: {
           latitude,
           longitude,
