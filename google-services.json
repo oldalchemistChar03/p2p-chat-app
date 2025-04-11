@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "826745315767",
+    "project_id": "peer2peer-a815f",
+    "storage_bucket": "peer2peer-a815f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:826745315767:android:9008097d82ffba51e40832",
+        "android_client_info": {
+          "package_name": "com.char03.p2pchatapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAEqV58CIqy4ayYqUl5TztOdyo8J0U9KPY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
